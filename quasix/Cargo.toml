@@ -1,0 +1,52 @@
+[package]
+name = "quasix"
+version = "0.5.0"
+edition = "2021"
+authors = ["QuasiX Development Team"]
+license = "MIT OR Apache-2.0"
+description = "Python bindings for QuasiX GW/BSE implementation"
+repository = "https://github.com/quasix/quasix"
+
+[lib]
+name = "quasix"
+crate-type = ["cdylib"]
+
+[dependencies]
+# Core computation engine with Python features enabled
+quasix_core = { path = "../quasix_core", features = ["python"] }
+
+# PyO3 for Python bindings
+pyo3 = { version = "0.26", features = ["extension-module", "abi3-py310"] }
+
+# NumPy integration - requires ndarray 0.16
+numpy = "0.26"
+
+# Array manipulation - match numpy's ndarray version
+ndarray = "0.16"
+
+# Complex numbers
+num-complex = "0.4"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "2.0"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Logging
+log = "0.4"
+env_logger = "0.11"
+
+# Parallel execution
+rayon = "1.7"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+
+[profile.dev]
+opt-level = 0
+debug = true

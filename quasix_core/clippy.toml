@@ -1,0 +1,22 @@
+# Clippy configuration for QuasiX scientific computing package
+
+# Allow longer cognitive complexity for scientific algorithms
+cognitive-complexity-threshold = 50
+
+# Allow more arguments for scientific functions
+too-many-arguments-threshold = 10
+
+# Allow larger functions for complex algorithms
+too-many-lines-threshold = 200
+
+# Documentation style for scientific computing
+doc-valid-idents = [
+    "QuasiX", "evGW", "scGW", "BSE", "GW", "DF", "RI", 
+    "PySCF", "HDF5", "BLAS", "LAPACK", "MKL", "OpenBLAS",
+    "Σx", "Σc", "ω", "ξ", "εi", "εf", "χ", "Π", "W",
+    "HOMO", "LUMO", "QP", "RPA", "TDA", "Bethe-Salpeter",
+    "Gauss-Legendre", "Coulomb", "Hartree", "Fock"
+]
+
+# Allow wildcard imports for common scientific computing patterns
+warn-on-all-wildcard-imports = false

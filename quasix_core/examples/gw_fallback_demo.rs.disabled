@@ -1,0 +1,367 @@
+// Comprehensive demonstration of the S4-4 Advanced G0W0 Fallback Framework
+// Shows AC quality assessment, decision logic, and seamless AC→CD transitions
+
+use quasix_core::fallback::{
+    FallbackController, FallbackConfig,
+    SystemContext, SystemType,
+    PhysicsChecker, TransitionController, TransitionConfig,
+};
+use ndarray::{Array1, Array2, Array3};
+use num_complex::Complex64;
+use std::time::Instant;
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    env_logger::init();
+
+    println!("=== QuasiX S4-4: Advanced G0W0 Fallback Framework Demo ===\n");
+
+    // System setup - small gap semiconductor
+    let system = SystemContext {
+        band_gap: 0.3,  // Small gap system - needs stricter thresholds
+        is_metallic: false,
+        n_basis: 200,
+        temperature: 0.0,
+        n_electrons: 24,
+        system_type: SystemType::Molecule,
+    };
+
+    println!("System: Small gap semiconductor");
+    println!("  Band gap: {} eV", system.band_gap);
+    println!("  Basis functions: {}", system.n_basis);
+    println!("  Electrons: {}\n", system.n_electrons);
+
+    // Configure fallback controller with adaptive thresholds
+    let mut config = FallbackConfig::default();
+    config.cv_error_threshold = 0.05;  // 5% CV error threshold
+    config.pole_stability_threshold = -1e-6;
+    config.causality_tolerance = 1e-3;
+    config.sum_rule_threshold = 0.05;
+
+    let mut controller = FallbackController::new(config.clone())?;
+
+    // Simulate multiple AC models with varying quality
+    let test_cases = vec![
+        ("High Quality AC", create_good_ac_model()),
+        ("Unstable Poles", create_unstable_poles_model()),
+        ("Poor CV", create_poor_cv_model()),
+        ("Causality Violation", create_causality_violating_model()),
+    ];
+
+    println!("Testing {} AC models with fallback decision logic:\n", test_cases.len());
+
+    for (name, ac_model) in test_cases {
+        println!("Test Case: {}", name);
+        println!("  Poles: {}, States: {}", ac_model.poles.len(), ac_model.n_states);
+
+        let start = Instant::now();
+
+        // Create validation data
+        let frequencies = Array1::linspace(0.01, 100.0, 50).to_vec();
+        let validation_data = simulate_validation_data(&ac_model, &frequencies);
+
+        // Assess and decide
+        let decision = controller.assess_and_decide(
+            &ac_model,
+            &validation_data,
+            &frequencies
+        )?;
+
+        let elapsed = start.elapsed();
+
+        println!("  Decision: {}", if decision.should_fallback { "FALLBACK to CD" } else { "USE AC" });
+        println!("  Reason: {:?}", decision.reason);
+        println!("  Diagnostic: {}", decision.diagnostic);
+        println!("  Assessment time: {:?}\n", elapsed);
+
+        // If fallback is needed, demonstrate transition
+        if decision.should_fallback {
+            demonstrate_transition(&ac_model, &decision)?;
+        }
+    }
+
+    // Physical constraints demonstration
+    println!("\n=== Physical Constraints Verification ===\n");
+    demonstrate_physics_checks()?;
+
+    // Show statistics
+    let stats = controller.get_statistics();
+    println!("\n=== Fallback Statistics ===");
+    println!("{}", stats.summary());
+
+    // Demonstrate context-aware threshold adjustment
+    println!("\n=== Context-Aware Threshold Adjustment ===\n");
+    demonstrate_adaptive_thresholds()?;
+
+    Ok(())
+}
+
+fn create_good_ac_model() -> quasix_core::fallback::controller::ACModel {
+    // Well-behaved AC model with stable poles
+    quasix_core::fallback::controller::ACModel {
+        poles: vec![
+            Complex64::new(1.0, -0.5),
+            Complex64::new(2.0, -0.8),
+            Complex64::new(3.0, -1.0),
+            Complex64::new(4.0, -1.2),
+        ],
+        residues: vec![
+            Complex64::new(0.25, 0.0),
+            Complex64::new(0.25, 0.0),
+            Complex64::new(0.25, 0.0),
+            Complex64::new(0.25, 0.0),
+        ],
+        n_states: 10,
+    }
+}
+
+fn create_unstable_poles_model() -> quasix_core::fallback::controller::ACModel {
+    // Model with unstable poles (positive imaginary parts)
+    quasix_core::fallback::controller::ACModel {
+        poles: vec![
+            Complex64::new(1.0, 0.1),   // Unstable!
+            Complex64::new(2.0, -1e-8),  // Too close to real axis
+            Complex64::new(3.0, -0.5),
+        ],
+        residues: vec![
+            Complex64::new(0.3, 0.0),
+            Complex64::new(0.4, 0.0),
+            Complex64::new(-0.3, 0.0),  // Negative residue!
+        ],
+        n_states: 10,
+    }
+}
+
+fn create_poor_cv_model() -> quasix_core::fallback::controller::ACModel {
+    // Model that will have high cross-validation error
+    quasix_core::fallback::controller::ACModel {
+        poles: vec![
+            Complex64::new(0.1, -0.01),  // Very sharp, hard to fit
+            Complex64::new(50.0, -0.01), // Far from data range
+        ],
+        residues: vec![
+            Complex64::new(100.0, 0.0),  // Very large residue
+            Complex64::new(0.001, 0.0),  // Very small residue
+        ],
+        n_states: 10,
+    }
+}
+
+fn create_causality_violating_model() -> quasix_core::fallback::controller::ACModel {
+    // Model that violates causality
+    quasix_core::fallback::controller::ACModel {
+        poles: vec![
+            Complex64::new(-1.0, -0.5),  // Negative real part
+            Complex64::new(-2.0, -0.5),
+        ],
+        residues: vec![
+            Complex64::new(0.5, 0.5),  // Complex residue
+            Complex64::new(0.5, -0.5),
+        ],
+        n_states: 10,
+    }
+}
+
+fn simulate_validation_data(
+    model: &quasix_core::fallback::controller::ACModel,
+    frequencies: &[f64],
+) -> Array2<Complex64> {
+    let mut data = Array2::zeros((model.n_states, frequencies.len()));
+
+    // Generate data with some noise
+    let model_values = model.evaluate(frequencies);
+
+    for state in 0..model.n_states {
+        for (i, &val) in model_values.iter().enumerate() {
+            // Add state-dependent variation and noise
+            let noise = Complex64::new(
+                0.01 * (state as f64 * 0.1).sin(),
+                0.01 * (state as f64 * 0.1).cos(),
+            );
+            data[[state, i]] = val * (1.0 + 0.1 * state as f64) + noise;
+        }
+    }
+
+    data
+}
+
+fn demonstrate_transition(
+    ac_model: &quasix_core::fallback::controller::ACModel,
+    decision: &quasix_core::fallback::FallbackDecision,
+) -> Result<(), Box<dyn std::error::Error>> {
+    println!("  === AC→CD Transition ===");
+
+    let config = TransitionConfig::default();
+    let mut transition = TransitionController::new(config);
+
+    // Create AC state
+    let ac_state = quasix_core::fallback::transition::ACState {
+        parameters: quasix_core::fallback::transition::ACParameters {
+            n_poles: ac_model.poles.len(),
+            broadening: 0.01,
+            max_iterations: 50,
+            convergence_threshold: 1e-6,
+            fermi_level: 0.0,
+            temperature: 0.0,
+        },
+        omega_grid: Array1::linspace(-10.0, 10.0, 201),
+        imaginary_grid: Array1::linspace(0.01, 100.0, 32),
+        n_states: ac_model.n_states,
+        n_occupied: ac_model.n_states / 2,
+        n_virtual: ac_model.n_states / 2,
+        mo_energy: Some(Array1::linspace(-5.0, 5.0, ac_model.n_states)),
+        mo_coeff: None,
+        df_tensors: None,
+        cache: None,
+    };
+
+    let start = Instant::now();
+    let cd_state = transition.transition(ac_state, decision)?;
+    let elapsed = start.elapsed();
+
+    println!("    CD state initialized:");
+    println!("      Poles: {}", cd_state.parameters.n_poles);
+    println!("      Omega points: {}", cd_state.omega_grid.len());
+    println!("      Imaginary points: {}", cd_state.imaginary_grid.len());
+    println!("      Transition time: {:?}", elapsed);
+
+    Ok(())
+}
+
+fn demonstrate_physics_checks() -> Result<(), Box<dyn std::error::Error>> {
+    let checker = PhysicsChecker::new(1e-3, 0.05);
+
+    // Create test self-energy
+    let n_orbs = 4;
+    let omega_grid = Array1::linspace(-10.0, 10.0, 21);
+    let mut sigma = Array2::zeros((n_orbs, omega_grid.len()));
+
+    // Setup physical self-energy
+    let fermi_level = 0.0;
+    for (i, &omega) in omega_grid.iter().enumerate() {
+        for orb in 0..n_orbs {
+            if omega > fermi_level {
+                // Correct causality: Im[Σ] < 0 for ω > μ
+                sigma[[orb, i]] = Complex64::new(0.1 * omega, -0.01 * omega.abs());
+            } else {
+                // Correct causality: Im[Σ] > 0 for ω < μ
+                sigma[[orb, i]] = Complex64::new(0.1 * omega, 0.01 * omega.abs());
+            }
+        }
+    }
+
+    // Check causality
+    let causality = checker.check_causality(&sigma, &omega_grid, fermi_level)?;
+    println!("Causality Check:");
+    println!("  Is causal: {}", causality.is_causal);
+    println!("  Max violation: {:.3e}", causality.max_violation);
+    println!("  Checked points: {}", causality.checked_points);
+
+    // Check pole structure
+    let poles = vec![
+        Complex64::new(1.0, -0.5),
+        Complex64::new(2.0, -1.0),
+    ];
+    let residues = vec![
+        Complex64::new(0.5, 0.0),
+        Complex64::new(0.5, 0.0),
+    ];
+
+    let pole_report = checker.check_pole_structure(&poles, &residues)?;
+    println!("\nPole Structure Check:");
+    println!("  All stable: {}", pole_report.all_poles_stable);
+    println!("  All physical: {}", pole_report.all_residues_physical);
+    println!("  Well separated: {}", pole_report.poles_well_separated);
+
+    // Check sum rules (simplified)
+    let mut spectral = Array2::zeros((n_orbs, omega_grid.len()));
+    for orb in 0..n_orbs {
+        // Create normalized Lorentzian
+        for (i, &omega) in omega_grid.iter().enumerate() {
+            let width = 1.0;
+            spectral[[orb, i]] = width / (std::f64::consts::PI * (omega.powi(2) + width.powi(2)));
+        }
+    }
+
+    let sum_rules = checker.check_sum_rules(&spectral, &omega_grid, n_orbs)?;
+    println!("\nSum Rules Check:");
+    println!("  Satisfies sum rules: {}", sum_rules.satisfies_sum_rules);
+    println!("  Max orbital error: {:.3e}", sum_rules.max_orbital_error);
+    println!("  Total error: {:.3e}", sum_rules.total_error);
+
+    Ok(())
+}
+
+fn demonstrate_adaptive_thresholds() -> Result<(), Box<dyn std::error::Error>> {
+    let base_config = FallbackConfig::default();
+
+    println!("Base thresholds:");
+    println!("  CV error: {}", base_config.cv_error_threshold);
+    println!("  Pole stability: {:.1e}", base_config.pole_stability_threshold);
+    println!("  Causality: {:.1e}", base_config.causality_tolerance);
+
+    // Test different system contexts
+    let contexts = vec![
+        ("Small gap", SystemContext {
+            band_gap: 0.3,
+            is_metallic: false,
+            n_basis: 100,
+            temperature: 0.0,
+            n_electrons: 10,
+            system_type: SystemType::Molecule,
+        }),
+        ("Metallic", SystemContext {
+            band_gap: 0.0,
+            is_metallic: true,
+            n_basis: 100,
+            temperature: 0.0,
+            n_electrons: 10,
+            system_type: SystemType::Solid,
+        }),
+        ("Large basis", SystemContext {
+            band_gap: 2.0,
+            is_metallic: false,
+            n_basis: 600,
+            temperature: 0.0,
+            n_electrons: 50,
+            system_type: SystemType::Cluster,
+        }),
+        ("Finite temperature", SystemContext {
+            band_gap: 1.5,
+            is_metallic: false,
+            n_basis: 200,
+            temperature: 500.0,
+            n_electrons: 20,
+            system_type: SystemType::Surface,
+        }),
+    ];
+
+    for (name, context) in contexts {
+        let mut config = base_config.clone();
+        let mut controller = FallbackController::new(config)?;
+
+        // This would internally adjust thresholds based on context
+        // In a real implementation, we'd have a method to update context
+
+        println!("\n{} system adjustments:", name);
+        println!("  Band gap: {} eV", context.band_gap);
+        println!("  Metallic: {}", context.is_metallic);
+        println!("  Basis size: {}", context.n_basis);
+        println!("  Temperature: {} K", context.temperature);
+
+        // Show how thresholds would be adjusted
+        if context.band_gap < 0.5 {
+            println!("  → Stricter thresholds for small gap");
+        }
+        if context.is_metallic {
+            println!("  → Enhanced checks for metallic system");
+        }
+        if context.n_basis > 500 {
+            println!("  → Relaxed numerical tolerances for large basis");
+        }
+        if context.temperature > 300.0 {
+            println!("  → Adjusted for thermal broadening");
+        }
+    }
+
+    Ok(())
+}

@@ -1,0 +1,20 @@
+# Rust formatting configuration for QuasiX
+
+# Maximum line width
+max_width = 100
+
+# Use spaces instead of tabs
+hard_tabs = false
+tab_spaces = 4
+
+# Import formatting (stable features only)
+reorder_imports = true
+reorder_modules = true
+
+# Code style
+use_field_init_shorthand = true
+use_try_shorthand = true
+
+# Consistency
+newline_style = "Unix"
+edition = "2021"

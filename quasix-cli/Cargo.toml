@@ -1,0 +1,29 @@
+[package]
+name = "quasix-cli"
+version = "0.5.0"
+edition = "2021"
+authors = ["QuasiX Development Team"]
+description = "Command-line interface for QuasiX GW/BSE calculations"
+license = "MIT OR Apache-2.0"
+
+[[bin]]
+name = "quasix"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.4", features = ["derive", "env"] }
+quasix_core = { path = "../quasix_core", features = ["hdf5_support"] }
+anyhow = "1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+ndarray = "0.16"
+chrono = { version = "0.4", features = ["serde"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+num_cpus = "1.16"
+num-complex = "0.4"
+
+[profile.release]
+lto = true
+strip = true
+opt-level = 3

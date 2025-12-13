@@ -1,0 +1,23 @@
+[build-system]
+requires = ["maturin>=1.7,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "quasix_core"
+version = "0.5.0"
+description = "QuasiX core computational kernel with Python bindings"
+authors = [
+    { name = "QuasiX Team" }
+]
+license = { text = "BSD-3-Clause" }
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24.0",
+]
+
+[tool.maturin]
+# Explicitly specify PyO3 bindings (not CFFI!)
+bindings = "pyo3"
+# Use abi3 for stable ABI across Python versions
+features = ["pyo3/abi3-py310", "python"]
+strip = false  # Keep debug symbols for development
