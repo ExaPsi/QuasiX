@@ -59,7 +59,7 @@ sha2 = "0.10"
 pyo3 = { version = "0.26", optional = true, features = ["extension-module", "abi3-py310"] }
 numpy = { version = "0.26", optional = true }
 # Fallback system dependencies
-lru = "0.12"
+lru = "0.16"
 xxhash-rust = { version = "0.8", features = ["xxh3"] }
 
 [build-dependencies]
