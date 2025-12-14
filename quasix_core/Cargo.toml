@@ -28,7 +28,7 @@ ndarray = { version = "0.16", features = ["rayon", "blas", "serde"] }
 ndarray-linalg = { version = "0.17", features = ["openblas-static"] }
 nalgebra = { version = "0.33", features = ["serde-serialize"] }
 cblas = "0.4"  # For direct BLAS calls
-cblas-sys = "0.1"  # For raw BLAS FFI
+cblas-sys = "0.3"  # For raw BLAS FFI
 blas-src = { version = "0.10", features = ["openblas"] }
 wide = "0.7"  # For portable SIMD operations
 libcint = { version = "0.2.1", optional = true }
