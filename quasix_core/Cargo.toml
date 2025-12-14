@@ -1,0 +1,116 @@
+[package]
+name = "quasix_core"
+version = "0.6.0"
+edition = "2021"
+authors = ["QuasiX Team"]
+license = "MIT OR Apache-2.0"
+description = "High-performance GW/BSE implementation for quantum chemistry"
+repository = "https://github.com/ExaPsi/QuasiX"
+keywords = ["quantum-chemistry", "gw", "bse", "many-body", "quasiparticle"]
+categories = ["science"]
+
+[lib]
+name = "quasix_core"
+crate-type = ["cdylib", "rlib"]  # cdylib for Python extension, rlib for Rust dependencies
+
+[features]
+# Real libcint is MANDATORY for QuasiX - this is a high-quality quantum chemistry package
+default = ["real_libcint", "simd", "evgw", "hdf5_support"]
+real_libcint = ["libcint", "libc"]  # ALWAYS ENABLED - no mock implementations allowed
+build_libcint = ["cmake"]
+hdf5_support = ["hdf5"]
+simd = []  # Enable SIMD optimizations
+evgw = []  # Enable evGW functionality
+python = ["pyo3", "numpy"]  # Enable Python bindings
+
+[dependencies]
+ndarray = { version = "0.16", features = ["rayon", "blas", "serde"] }
+ndarray-linalg = { version = "0.17", features = ["openblas-static"] }
+nalgebra = { version = "0.33", features = ["serde-serialize"] }
+cblas = "0.4"  # For direct BLAS calls
+cblas-sys = "0.1"  # For raw BLAS FFI
+blas-src = { version = "0.10", features = ["openblas"] }
+wide = "0.7"  # For portable SIMD operations
+libcint = { version = "0.1.5", optional = true }
+libc = { version = "0.2", optional = true }
+num-complex = "0.4"
+num_cpus = "1.16"
+rayon = "1.7"
+parking_lot = "0.12"
+crossbeam = "0.8"
+crossbeam-channel = "0.5"
+crossbeam-deque = "0.8"
+fastrand = "2.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+anyhow = "1.0"
+log = "0.4"
+approx = "0.5"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["json", "env-filter", "fmt", "std"] }
+chrono = { version = "0.4", features = ["serde"] }
+rand = { version = "0.9", features = ["small_rng"] }
+rand_distr = "0.5"
+uuid = { version = "1.10", features = ["v4", "serde"] }
+hostname = "0.4"
+hdf5 = { version = "0.8", optional = true }
+sha2 = "0.10"
+pyo3 = { version = "0.26", optional = true, features = ["extension-module", "abi3-py310"] }
+numpy = { version = "0.26", optional = true }
+# Fallback system dependencies
+lru = "0.12"
+xxhash-rust = { version = "0.8", features = ["xxh3"] }
+
+[build-dependencies]
+pkg-config = "0.3"
+cmake = { version = "0.1", optional = true }
+
+[dev-dependencies]
+approx = "0.5"
+criterion = "0.7"
+tempfile = "3.8"
+proptest = "1.0"
+env_logger = "0.11"
+
+[[bench]]
+name = "two_center_bench"
+harness = false
+
+[[bench]]
+name = "three_center_bench"
+harness = false
+
+[[bench]]
+name = "evgw_parallel"
+harness = false
+
+[[bench]]
+name = "mo_transform_parallel"
+harness = false
+
+[[bench]]
+name = "metric_sqrt_bench"
+harness = false
+
+[[bench]]
+name = "freq_grid_simd_bench"
+harness = false
+
+[[bench]]
+name = "exchange_blas_bench"
+harness = false
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = false
+debug = false
+
+[profile.bench]
+inherits = "release"
+
+[target.'cfg(target_arch = "x86_64")'.dependencies]
+# x86_64 specific optimizations

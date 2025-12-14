@@ -1,0 +1,138 @@
+{
+  "metadata": {
+    "quasix_version": "0.1.0",
+    "timestamp": "2025-09-15T14:54:33.500701665Z",
+    "user": "vyv",
+    "hostname": "plot01",
+    "git_commit": null,
+    "uuid": "61012965-3c42-4d8c-9986-7f0150c5df34",
+    "parent_uuid": null,
+    "custom": {}
+  },
+  "molecule": {
+    "natoms": 3,
+    "symbols": [
+      "O",
+      "H",
+      "H"
+    ],
+    "atomic_numbers": [
+      8,
+      1,
+      1
+    ],
+    "coordinates": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.757,
+        0.587
+      ],
+      [
+        0.0,
+        -0.757,
+        0.587
+      ]
+    ],
+    "charge": 0,
+    "multiplicity": 1,
+    "symmetry": "C2v"
+  },
+  "basis": {
+    "ao_basis": "cc-pvdz",
+    "n_ao": 24,
+    "aux_basis": "cc-pvdz-jkfit",
+    "n_aux": 84,
+    "functions": null
+  },
+  "parameters": {
+    "calculation_type": "EvGW",
+    "gw_params": null,
+    "bse_params": null,
+    "convergence": {
+      "energy_tol": 1e-6,
+      "density_tol": 1e-8,
+      "max_iterations": 100,
+      "use_diis": false,
+      "diis_space": 8
+    },
+    "frequency": {
+      "grid_type": "gauss_legendre",
+      "n_points": 60,
+      "omega_max": null,
+      "eta": 0.01
+    }
+  },
+  "results": {
+    "reference": {
+      "energy": 0.0,
+      "orbital_energies": [
+        0.15188634441289928,
+        0.48998954161109987,
+        0.795191096232481,
+        0.4143087463019971,
+        0.3789157691542878,
+        0.6158848218972124,
+        0.24479932420908346,
+        0.19616862239569743,
+        0.4520862763547363,
+        0.7845447232098794,
+        0.034130386837375015,
+        0.7246561495468169,
+        0.8484908925889127,
+        0.575420112270044,
+        0.2606994450158753,
+        0.6701549366554189,
+        0.9146075225657325,
+        0.39041824592421603,
+        0.4163345880629338,
+        0.8042966960027931,
+        0.1179435056563155,
+        0.621826092934217,
+        0.5467375156413308,
+        0.8999562459344783
+      ],
+      "occupations": [
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "homo": 0,
+      "lumo": 0,
+      "mo_coefficients": null
+    },
+    "gw": null,
+    "bse": null,
+    "timings": {
+      "total_time": 0.0,
+      "components": {},
+      "peak_memory": null
+    },
+    "convergence_history": []
+  }
+}

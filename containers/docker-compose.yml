@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  quasix-dev:
+    build:
+      context: ..
+      dockerfile: containers/Dockerfile
+    image: quasix/dev:latest
+    container_name: quasix-dev
+    working_dir: /workspace
+    volumes:
+      - ..:/workspace:cached
+      - ../data:/data:cached
+    environment:
+      - OPENBLAS_NUM_THREADS=1
+      - MKL_NUM_THREADS=1
+      - OMP_NUM_THREADS=4
+      - QUASIX_LOG=info
+    ports:
+      - "8888:8888"
+    command: bash -lc "jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token='' --NotebookApp.password=''"
+
+  # Example pattern if you later expose a PySCF DF microservice (not required now):
+  # pyscf-service:
+  #   image: quasix/dev:latest
+  #   container_name: pyscf-service
+  #   working_dir: /workspace
+  #   volumes:
+  #     - ..:/workspace:cached
+  #     - ../data:/data:cached
+  #   environment:
+  #     - OPENBLAS_NUM_THREADS=1
+  #     - MKL_NUM_THREADS=1
+  #     - OMP_NUM_THREADS=4
+  #   ports:
+  #     - "8080:8080"
+  #   command: bash -lc "python scripts/pyscf_service.py --port 8080"
+
