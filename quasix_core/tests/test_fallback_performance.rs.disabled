@@ -1,0 +1,247 @@
+// Integration tests for fallback system performance optimizations
+// Verifies that SIMD, parallel, and caching optimizations work correctly
+
+use quasix_core::fallback::{
+    FallbackController, FallbackConfig, FallbackDecision,
+};
+use quasix_core::fallback::controller::ACModel;
+use quasix_core::fallback::simd::SimdMetrics;
+use quasix_core::fallback::parallel::ParallelAssessor;
+use quasix_core::fallback::cache::{DecisionCache, CacheKey};
+
+use ndarray::{Array1, Array2};
+use num_complex::Complex64;
+use approx::assert_abs_diff_eq;
+
+#[test]
+fn test_simd_cv_error_correctness() {
+    // Test that SIMD and scalar implementations produce identical results
+    let simd = SimdMetrics::new();
+    let scalar = SimdMetrics {
+        use_avx512: false,
+        use_avx2: false,
+    };
+
+    // Test various sizes
+    for size in [63, 64, 65, 127, 128, 129, 255, 256, 257, 1000, 10000] {
+        let predicted = Array1::from_vec(
+            (0..size).map(|i| (i as f64).sin()).collect()
+        );
+        let actual = Array1::from_vec(
+            (0..size).map(|i| (i as f64).cos()).collect()
+        );
+
+        let simd_result = simd.cv_error(&predicted, &actual);
+        let scalar_result = scalar.cv_error(&predicted, &actual);
+
+        assert_abs_diff_eq!(
+            simd_result,
+            scalar_result,
+            epsilon = 1e-12,
+            "SIMD and scalar results differ for size {}",
+            size
+        );
+    }
+}
+
+#[test]
+fn test_simd_pole_stability_correctness() {
+    let simd = SimdMetrics::new();
+
+    let poles_re = Array1::from_vec(vec![1.0, 2.0, 3.0, 4.0, 5.0]);
+    let poles_im = Array1::from_vec(vec![-0.5, -1e-7, 0.1, -2e-6, -1.0]);
+
+    let stable = simd.analyze_poles_stability(&poles_re, &poles_im);
+
+    // Expected: poles with Im < -1e-6 are stable
+    let expected = vec![true, true, false, true, true];
+    assert_eq!(stable, expected);
+}
+
+#[test]
+fn test_parallel_assessment() {
+    let assessor = ParallelAssessor::new(4); // Use 4 threads
+
+    // Create test data
+    let n_freq = 50;
+    let n_states = 100;
+
+    let predicted = Array2::from_shape_fn((n_freq, n_states), |(i, j)| {
+        ((i + j) as f64 * 0.1).sin()
+    });
+    let actual = Array2::from_shape_fn((n_freq, n_states), |(i, j)| {
+        ((i + j) as f64 * 0.1).cos()
+    });
+
+    // Test parallel CV error calculation
+    let result = assessor.cv_error_parallel(&predicted, &actual);
+    assert!(result.is_ok());
+
+    let error = result.unwrap();
+    assert!(error > 0.0);
+    assert!(error < 10.0); // Reasonable range
+}
+
+#[test]
+fn test_cache_operations() {
+    let cache = DecisionCache::new(100);
+
+    // Generate test keys
+    let key1 = CacheKey::from_model_params(
+        &[(1.0, -0.1), (2.0, -0.2)],
+        &[0.1, 0.2, 0.3],
+        0
+    );
+    let key2 = CacheKey::from_model_params(
+        &[(1.0, -0.1), (2.0, -0.2)],
+        &[0.1, 0.2, 0.3],
+        1  // Different state
+    );
+
+    // Test insert and get
+    let decision1 = FallbackDecision::use_ac("Test AC decision".to_string());
+    cache.insert(key1.clone(), decision1.clone());
+
+    // Should hit cache
+    let retrieved = cache.get(&key1);
+    assert!(retrieved.is_some());
+    assert_eq!(retrieved.unwrap().diagnostic, decision1.diagnostic);
+
+    // Should miss cache
+    let missed = cache.get(&key2);
+    assert!(missed.is_none());
+
+    // Check statistics
+    let stats = cache.statistics();
+    assert_eq!(stats.hits, 1);
+    assert_eq!(stats.misses, 1);
+    assert_eq!(stats.hit_rate, 0.5);
+}
+
+#[test]
+fn test_cache_key_determinism() {
+    // Same parameters should always produce same key
+    let poles = vec![(1.0, -0.1), (2.0, -0.2), (3.0, -0.3)];
+    let freqs = vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5];
+
+    let key1 = CacheKey::from_model_params(&poles, &freqs, 42);
+    let key2 = CacheKey::from_model_params(&poles, &freqs, 42);
+
+    assert_eq!(key1, key2);
+
+    // Different parameters should produce different keys
+    let key3 = CacheKey::from_model_params(&poles, &freqs, 43);
+    assert_ne!(key1, key3);
+}
+
+#[test]
+fn test_fallback_controller_integration() {
+    let config = FallbackConfig {
+        cv_error_threshold: 0.1,
+        pole_stability_threshold: -1e-6,
+        causality_tolerance: 1e-3,
+        sum_rule_threshold: 0.05,
+        enable_simd: true,
+        cache_size: 100,
+        num_threads: 4,
+    };
+
+    let controller = FallbackController::new(config).unwrap();
+
+    // Create a simple AC model
+    let model = ACModel {
+        poles: vec![
+            Complex64::new(1.0, -0.5),
+            Complex64::new(2.0, -0.3),
+        ],
+        residues: vec![
+            Complex64::new(0.5, 0.0),
+            Complex64::new(0.5, 0.0),
+        ],
+        n_states: 1,
+    };
+
+    let validation_data = Array2::from_shape_fn((1, 10), |(_, i)| {
+        Complex64::new((i as f64 * 0.1).sin(), 0.0)
+    });
+
+    let frequencies: Vec<f64> = (0..10).map(|i| i as f64 * 0.1).collect();
+
+    // First call - should miss cache
+    let decision1 = controller.assess_and_decide(&model, &validation_data, &frequencies);
+    assert!(decision1.is_ok());
+
+    // Second call with same parameters - should hit cache
+    let decision2 = controller.assess_and_decide(&model, &validation_data, &frequencies);
+    assert!(decision2.is_ok());
+
+    // Get statistics
+    let stats = controller.get_statistics();
+    println!("Controller statistics: {:?}", stats);
+}
+
+#[test]
+fn test_batch_assessment() {
+    let config = FallbackConfig::default();
+    let controller = FallbackController::new(config).unwrap();
+
+    // Create multiple models
+    let models: Vec<_> = (0..5).map(|i| {
+        ACModel {
+            poles: vec![Complex64::new(i as f64, -0.1)],
+            residues: vec![Complex64::new(1.0, 0.0)],
+            n_states: 1,
+        }
+    }).collect();
+
+    let validation_data: Vec<_> = (0..5).map(|_| {
+        Array2::from_shape_fn((1, 10), |(_, j)| {
+            Complex64::new(j as f64 * 0.1, 0.0)
+        })
+    }).collect();
+
+    let frequencies: Vec<f64> = (0..10).map(|i| i as f64 * 0.1).collect();
+
+    // Batch assessment
+    let results = controller.assess_batch(&models, &validation_data, &frequencies);
+    assert!(results.is_ok());
+
+    let decisions = results.unwrap();
+    assert_eq!(decisions.len(), 5);
+}
+
+#[test]
+fn test_simd_sum_rule() {
+    let simd = SimdMetrics::new();
+
+    let weights = Array1::from_vec(vec![0.1, 0.2, 0.3, 0.25, 0.15]);
+    let values = Array1::from_vec(vec![1.0, 2.0, 3.0, 4.0, 5.0]);
+
+    let error = simd.sum_rule_error(&weights, &values, 2.85);
+
+    // weights · values = 0.1 + 0.4 + 0.9 + 1.0 + 0.75 = 3.15
+    // error = |3.15 - 2.85| / 2.85 ≈ 0.105
+    assert_abs_diff_eq!(error, 0.10526315789473685, epsilon = 1e-10);
+}
+
+#[test]
+fn test_memory_bandwidth_estimation() {
+    // Simple test to ensure memory operations are optimized
+    let size = 1_000_000; // 1M elements
+    let data = Array1::from_vec((0..size).map(|i| i as f64).collect());
+
+    let start = std::time::Instant::now();
+    let sum: f64 = data.iter().sum();
+    let elapsed = start.elapsed();
+
+    let bytes = size * 8; // 8 bytes per f64
+    let bandwidth_gb_s = bytes as f64 / elapsed.as_secs_f64() / 1e9;
+
+    println!(
+        "Memory bandwidth test: {:.2} GB/s (sum={})",
+        bandwidth_gb_s, sum
+    );
+
+    // Should achieve reasonable bandwidth (depends on system)
+    assert!(bandwidth_gb_s > 1.0); // At least 1 GB/s
+}

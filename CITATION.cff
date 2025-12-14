@@ -1,0 +1,57 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "QuasiX: A High-Performance Rust Implementation of GW and Bethe-Salpeter Equation Methods"
+version: 0.6.0
+date-released: 2025-12-14
+repository-code: "https://github.com/ExaPsi/QuasiX"
+url: "https://quasix.readthedocs.io"
+license:
+  - MIT
+  - Apache-2.0
+keywords:
+  - quantum chemistry
+  - GW approximation
+  - Bethe-Salpeter equation
+  - many-body perturbation theory
+  - quasiparticle
+  - excited states
+  - Rust
+  - Python
+  - PySCF
+abstract: >-
+  QuasiX is a high-performance implementation of the GW approximation and
+  Bethe-Salpeter Equation (BSE) methods for accurate quasiparticle and optical
+  excitation calculations. The Rust core provides 8-40x speedup over pure Python
+  implementations while maintaining seamless integration with PySCF.
+  Key features include G0W0 and evGW with DIIS acceleration, Newton-Raphson
+  quasiparticle solvers, contour deformation and analytic continuation frequency
+  integration, and BSE-TDA with Davidson solver.
+authors:
+  - family-names: "Paiboonvorachat"
+    given-names: "Nattapong"
+    affiliation: "Department of Chemistry, Faculty of Science, Chulalongkorn University, Bangkok 10330, Thailand"
+  - family-names: "Sawatlon"
+    given-names: "Boodsarin"
+    affiliation: "Department of Chemistry, Faculty of Science, Chulalongkorn University, Bangkok 10330, Thailand"
+  - family-names: "Vchirawongkwin"
+    given-names: "Viwat"
+    email: "viwat.v@chula.ac.th"
+    affiliation: "Department of Chemistry, Faculty of Science, Chulalongkorn University, Bangkok 10330, Thailand"
+preferred-citation:
+  type: article
+  title: "QuasiX: A High-Performance Rust Implementation of GW and Bethe-Salpeter Equation Methods with Seamless Python Integration"
+  authors:
+    - family-names: "Paiboonvorachat"
+      given-names: "Nattapong"
+      affiliation: "Department of Chemistry, Faculty of Science, Chulalongkorn University, Bangkok 10330, Thailand"
+    - family-names: "Sawatlon"
+      given-names: "Boodsarin"
+      affiliation: "Department of Chemistry, Faculty of Science, Chulalongkorn University, Bangkok 10330, Thailand"
+    - family-names: "Vchirawongkwin"
+      given-names: "Viwat"
+      email: "viwat.v@chula.ac.th"
+      affiliation: "Department of Chemistry, Faculty of Science, Chulalongkorn University, Bangkok 10330, Thailand"
+  journal: "Journal of Chemical Theory and Computation"
+  year: 2025
+  status: submitted

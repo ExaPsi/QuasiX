@@ -1,0 +1,259 @@
+# QuasiX Project .gitignore
+# ====================================
+# High-performance GW/BSE implementation
+# ====================================
+
+# ============================================
+# Python
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Python testing & quality
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+.pytype/
+.pyre/
+.hypothesis/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+.conda/
+*.virtualenv
+Pipfile.lock
+
+# ============================================
+# Rust
+# ============================================
+# Compiled files
+target/
+Cargo.lock
+**/*.rs.bk
+*.pdb
+
+# Rust testing & benchmarking
+tarpaulin-report.html
+cobertura.xml
+criterion/
+
+# ============================================
+# IDE & Editors
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+.project
+.pydevproject
+.settings/
+.classpath
+
+# ============================================
+# Project-Specific
+# ============================================
+# Test outputs and logs
+tests/logs/
+tests/*/logs/
+
+# Development debug scripts (not for public release)
+tests/debug/
+tests/archive/
+
+# Debug, diagnosis, and profiling scripts (development only)
+tests/diagnose_*.py
+tests/debug_*.py
+tests/trace_*.py
+tests/profile_*.py
+tests/quick_*.py
+tests/*_diagnosis.py
+tests/*_diagnosis_*.py
+*.log
+*.out
+*.err
+test_results_*.json
+s3_3_test_results_*.json
+s3_3_validation_report_*.json
+*_validation_report_*.json
+*_test_results_*.json
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+.cache/
+tmp/
+temp/
+
+# Generated performance plots
+*.png
+!docs/**/*.png
+!examples/**/*.png
+
+# ============================================
+# Scientific Data Files
+# ============================================
+# HDF5 and data files (but keep examples and reference data)
+*.h5
+*.hdf5
+*.dat
+*.npz
+*.npy
+!examples/**/*.dat
+!examples/**/*.h5
+!tests/reference_data/*.h5
+!tests/reference_data/*.npz
+
+# Reference data directories (generated during tests)
+reference_data/
+references/
+tests/reference_data/
+
+# Reference directory (external source code for analysis)
+reference/
+
+# GW100 benchmark dataset (large files, downloaded separately)
+tests/DataSet/
+tests/DataSet/**
+
+# ============================================
+# Documentation
+# ============================================
+# Sphinx builds
+docs/_build/
+docs/_static/
+docs/_templates/
+docs/api/generated/
+site/
+
+# Manuscripts (private drafts, not for public repo)
+docs/manuscripts/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+untitled*.ipynb
+
+# LaTeX
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+.*.lb
+
+# ============================================
+# OS-Specific
+# ============================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ============================================
+# CI/CD & DevOps
+# ============================================
+.github/workflows/test-results/
+.gitlab-ci-cache/
+.circleci/results/
+
+# ============================================
+# Security - Never commit these!
+# ============================================
+*.key
+*.pem
+*.p12
+*.pfx
+.env
+.env.local
+.env.*.local
+secrets/
+credentials/
+
+# ============================================
+# Keep Important Files
+# ============================================
+!.gitignore
+!.gitattributes
+!tests/
+!tests/verification/
+!tests/logs/.gitkeep
+!docs/derivations/
+!docs/stories/
+!examples/
+!benchmarks/
+!CLAUDE.md
+!README.md
+!CHANGELOG.md

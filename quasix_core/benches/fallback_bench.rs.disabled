@@ -1,0 +1,417 @@
+// Performance benchmarks for fallback system
+// Measures SIMD optimizations, cache efficiency, and parallel processing
+
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use std::hint::black_box;
+use ndarray::{Array1, Array2};
+use num_complex::Complex64;
+use quasix_core::fallback::{
+    FallbackController, FallbackConfig,
+    DecisionCache, FallbackDecision,
+};
+use quasix_core::fallback::quality::QualityAssessor;
+use quasix_core::fallback::simd::{SimdMetrics, CausalityChecker};
+use quasix_core::fallback::parallel::{ParallelAssessor, MetricsData, ParallelMatrixOps};
+use quasix_core::fallback::controller::ACModel;
+use quasix_core::fallback::cache::CacheKey;
+use rand::prelude::*;
+use std::time::Duration;
+
+// Helper function to generate random data
+fn generate_random_array(n: usize) -> Array1<f64> {
+    let mut rng = thread_rng();
+    Array1::from_vec(
+        (0..n).map(|_| rng.gen_range(-1.0..1.0)).collect()
+    )
+}
+
+fn generate_random_complex_array(rows: usize, cols: usize) -> Array2<Complex64> {
+    let mut rng = thread_rng();
+    Array2::from_shape_fn((rows, cols), |_| {
+        Complex64::new(
+            rng.gen_range(-1.0..1.0),
+            rng.gen_range(-1.0..1.0),
+        )
+    })
+}
+
+fn generate_ac_model(n_poles: usize) -> ACModel {
+    let mut rng = thread_rng();
+    let poles: Vec<Complex64> = (0..n_poles)
+        .map(|i| Complex64::new(
+            i as f64 + rng.gen_range(0.0..1.0),
+            -rng.gen_range(0.01..1.0),
+        ))
+        .collect();
+
+    let residues: Vec<Complex64> = (0..n_poles)
+        .map(|_| Complex64::new(
+            rng.gen_range(0.0..1.0),
+            0.0,
+        ))
+        .collect();
+
+    ACModel {
+        poles,
+        residues,
+        n_states: 1,
+    }
+}
+
+// SIMD benchmarks
+fn bench_simd_cv_error(c: &mut Criterion) {
+    let mut group = c.benchmark_group("simd_cv_error");
+    let simd = SimdMetrics::new();
+
+    for size in [64, 256, 1024, 4096, 16384].iter() {
+        let predicted = generate_random_array(*size);
+        let actual = generate_random_array(*size);
+
+        group.throughput(Throughput::Elements(*size as u64));
+
+        // Benchmark with SIMD
+        group.bench_with_input(
+            BenchmarkId::new("simd", size),
+            size,
+            |b, _| b.iter(|| {
+                black_box(simd.cv_error(&predicted, &actual))
+            }),
+        );
+
+        // Benchmark without SIMD (scalar)
+        let scalar_simd = SimdMetrics {
+            use_avx512: false,
+            use_avx2: false,
+        };
+        group.bench_with_input(
+            BenchmarkId::new("scalar", size),
+            size,
+            |b, _| b.iter(|| {
+                black_box(scalar_simd.cv_error(&predicted, &actual))
+            }),
+        );
+    }
+    group.finish();
+}
+
+fn bench_simd_pole_analysis(c: &mut Criterion) {
+    let mut group = c.benchmark_group("simd_pole_analysis");
+    let simd = SimdMetrics::new();
+
+    for size in [100, 500, 1000, 5000].iter() {
+        let poles_re = generate_random_array(*size);
+        let poles_im = Array1::from_vec(
+            (0..*size).map(|_| -thread_rng().gen_range(0.0..1.0)).collect()
+        );
+
+        group.throughput(Throughput::Elements(*size as u64));
+
+        group.bench_with_input(
+            BenchmarkId::new("simd", size),
+            size,
+            |b, _| b.iter(|| {
+                black_box(simd.analyze_poles_stability(&poles_re, &poles_im))
+            }),
+        );
+    }
+    group.finish();
+}
+
+fn bench_simd_sum_rule(c: &mut Criterion) {
+    let mut group = c.benchmark_group("simd_sum_rule");
+    let simd = SimdMetrics::new();
+
+    for size in [100, 500, 1000, 5000, 10000].iter() {
+        let weights = generate_random_array(*size);
+        let values = generate_random_array(*size);
+
+        group.throughput(Throughput::Elements(*size as u64));
+
+        group.bench_with_input(
+            BenchmarkId::new("weighted_sum", size),
+            size,
+            |b, _| b.iter(|| {
+                black_box(simd.sum_rule_error(&weights, &values, 1.0))
+            }),
+        );
+    }
+    group.finish();
+}
+
+// Parallel processing benchmarks
+fn bench_parallel_cv_error(c: &mut Criterion) {
+    let mut group = c.benchmark_group("parallel_cv_error");
+
+    for n_freq in [10, 50, 100, 200].iter() {
+        for n_states in [100, 500, 1000].iter() {
+            let assessor = ParallelAssessor::new(num_cpus::get());
+            let predicted = Array2::from_shape_fn((*n_freq, *n_states), |_| {
+                thread_rng().gen_range(-1.0..1.0)
+            });
+            let actual = Array2::from_shape_fn((*n_freq, *n_states), |_| {
+                thread_rng().gen_range(-1.0..1.0)
+            });
+
+            let id = format!("{}_freq_{}_states", n_freq, n_states);
+            group.throughput(Throughput::Elements((*n_freq * *n_states) as u64));
+
+            group.bench_with_input(
+                BenchmarkId::new("parallel", &id),
+                &id,
+                |b, _| b.iter(|| {
+                    black_box(assessor.cv_error_parallel(&predicted, &actual).unwrap())
+                }),
+            );
+        }
+    }
+    group.finish();
+}
+
+fn bench_parallel_metrics_evaluation(c: &mut Criterion) {
+    let mut group = c.benchmark_group("parallel_metrics");
+    let assessor = ParallelAssessor::new(num_cpus::get());
+
+    for n_states in [10, 50, 100].iter() {
+        let metrics_data = MetricsData {
+            predicted: (0..*n_states).map(|_| generate_random_array(100)).collect(),
+            actual: (0..*n_states).map(|_| generate_random_array(100)).collect(),
+            poles_re: generate_random_array(50),
+            poles_im: Array1::from_vec(
+                (0..50).map(|_| -thread_rng().gen_range(0.0..1.0)).collect()
+            ),
+            real_parts: (0..*n_states).map(|_| generate_random_array(100)).collect(),
+            imag_parts: (0..*n_states).map(|_| generate_random_array(100)).collect(),
+            frequencies: Array1::from_vec((0..100).map(|i| i as f64 * 0.1).collect()),
+            weights: generate_random_array(100),
+            spectral_values: generate_random_array(100),
+            expected_sum: 1.0,
+        };
+
+        group.bench_with_input(
+            BenchmarkId::new("concurrent_metrics", n_states),
+            n_states,
+            |b, _| b.iter(|| {
+                black_box(assessor.evaluate_metrics_concurrent(&metrics_data).unwrap())
+            }),
+        );
+    }
+    group.finish();
+}
+
+fn bench_parallel_matrix_ops(c: &mut Criterion) {
+    let mut group = c.benchmark_group("parallel_matrix_ops");
+
+    for size in [100, 500, 1000, 2000].iter() {
+        let matrix = Array2::from_shape_fn((*size, *size), |_| {
+            thread_rng().gen_range(-1.0..1.0)
+        });
+        let vector = generate_random_array(*size);
+
+        group.throughput(Throughput::Elements((*size * *size) as u64));
+
+        group.bench_with_input(
+            BenchmarkId::new("matvec", size),
+            size,
+            |b, _| b.iter(|| {
+                black_box(ParallelMatrixOps::matvec_parallel(&matrix, &vector))
+            }),
+        );
+
+        group.bench_with_input(
+            BenchmarkId::new("frobenius", size),
+            size,
+            |b, _| b.iter(|| {
+                black_box(ParallelMatrixOps::frobenius_norm_parallel(&matrix))
+            }),
+        );
+    }
+    group.finish();
+}
+
+// Cache benchmarks
+fn bench_cache_operations(c: &mut Criterion) {
+    let mut group = c.benchmark_group("cache_operations");
+
+    for cache_size in [100, 500, 1000, 5000].iter() {
+        let cache = DecisionCache::new(*cache_size);
+
+        // Pre-populate cache
+        for i in 0..*cache_size / 2 {
+            let key = CacheKey::from_hash(i as u64, i as u128);
+            cache.insert(key, FallbackDecision::use_ac("Benchmark test".to_string()));
+        }
+
+        // Benchmark cache hits
+        group.bench_with_input(
+            BenchmarkId::new("hit", cache_size),
+            cache_size,
+            |b, _| {
+                let key = CacheKey::from_hash(10, 10);
+                cache.insert(key.clone(), FallbackDecision::use_ac("Benchmark test".to_string()));
+                b.iter(|| {
+                    black_box(cache.get(&key))
+                })
+            },
+        );
+
+        // Benchmark cache misses
+        group.bench_with_input(
+            BenchmarkId::new("miss", cache_size),
+            cache_size,
+            |b, _| {
+                let mut counter = *cache_size as u64;
+                b.iter(|| {
+                    counter += 1;
+                    let key = CacheKey::from_hash(counter, counter as u128);
+                    black_box(cache.get(&key))
+                })
+            },
+        );
+
+        // Benchmark batch operations
+        let keys: Vec<_> = (0..100)
+            .map(|i| CacheKey::from_hash(i, i as u128))
+            .collect();
+
+        group.bench_with_input(
+            BenchmarkId::new("batch_get", cache_size),
+            cache_size,
+            |b, _| b.iter(|| {
+                black_box(cache.get_batch(&keys))
+            }),
+        );
+    }
+    group.finish();
+}
+
+// End-to-end fallback controller benchmarks
+fn bench_fallback_controller(c: &mut Criterion) {
+    let mut group = c.benchmark_group("fallback_controller");
+    group.measurement_time(Duration::from_secs(10));
+
+    for n_poles in [10, 50, 100].iter() {
+        let config = FallbackConfig {
+            enable_simd: true,
+            cache_size: 1000,
+            num_threads: num_cpus::get(),
+            ..Default::default()
+        };
+
+        let controller = FallbackController::new(config).unwrap();
+        let model = generate_ac_model(*n_poles);
+        let validation_data = generate_random_complex_array(1, 100);
+        let frequencies: Vec<f64> = (0..100).map(|i| i as f64 * 0.1).collect();
+
+        group.throughput(Throughput::Elements(*n_poles as u64));
+
+        group.bench_with_input(
+            BenchmarkId::new("assess_and_decide", n_poles),
+            n_poles,
+            |b, _| b.iter(|| {
+                black_box(controller.assess_and_decide(
+                    &model,
+                    &validation_data,
+                    &frequencies,
+                ).unwrap())
+            }),
+        );
+
+        // Benchmark batch assessment
+        let models: Vec<_> = (0..10).map(|_| generate_ac_model(*n_poles)).collect();
+        let validation_batch: Vec<_> = (0..10)
+            .map(|_| generate_random_complex_array(1, 100))
+            .collect();
+
+        group.bench_with_input(
+            BenchmarkId::new("assess_batch", n_poles),
+            n_poles,
+            |b, _| b.iter(|| {
+                black_box(controller.assess_batch(
+                    &models,
+                    &validation_batch,
+                    &frequencies,
+                ).unwrap())
+            }),
+        );
+    }
+    group.finish();
+}
+
+// Causality checking benchmarks
+fn bench_causality_checking(c: &mut Criterion) {
+    let mut group = c.benchmark_group("causality_checking");
+    let checker = CausalityChecker::new();
+
+    for n_freq in [50, 100, 200, 500].iter() {
+        let real_part = generate_random_array(*n_freq);
+        let imag_part = generate_random_array(*n_freq);
+        let frequencies = Array1::from_vec(
+            (0..*n_freq).map(|i| i as f64 * 0.1).collect()
+        );
+
+        group.throughput(Throughput::Elements(*n_freq as u64));
+
+        group.bench_with_input(
+            BenchmarkId::new("kramers_kronig", n_freq),
+            n_freq,
+            |b, _| b.iter(|| {
+                black_box(checker.check_kramers_kronig(
+                    &real_part,
+                    &imag_part,
+                    &frequencies,
+                ))
+            }),
+        );
+    }
+    group.finish();
+}
+
+// Memory bandwidth benchmark
+fn bench_memory_bandwidth(c: &mut Criterion) {
+    let mut group = c.benchmark_group("memory_bandwidth");
+
+    for size_mb in [1, 10, 50, 100].iter() {
+        let n_elements = size_mb * 1024 * 1024 / 8;  // 8 bytes per f64
+        let data = generate_random_array(n_elements);
+
+        group.throughput(Throughput::Bytes(*size_mb as u64 * 1024 * 1024));
+
+        group.bench_with_input(
+            BenchmarkId::new("read", size_mb),
+            size_mb,
+            |b, _| b.iter(|| {
+                let sum: f64 = data.iter().sum();
+                black_box(sum)
+            }),
+        );
+
+        let mut write_data = data.clone();
+        group.bench_with_input(
+            BenchmarkId::new("write", size_mb),
+            size_mb,
+            |b, _| b.iter(|| {
+                for x in write_data.iter_mut() {
+                    *x *= 2.0;
+                }
+                black_box(&write_data)
+            }),
+        );
+    }
+    group.finish();
+}
+
+criterion_group!(
+    benches,
+    bench_simd_cv_error,
+    bench_simd_pole_analysis,
+    bench_simd_sum_rule,
+    bench_parallel_cv_error,
+    bench_parallel_metrics_evaluation,
+    bench_parallel_matrix_ops,
+    bench_cache_operations,
+    bench_fallback_controller,
+    bench_causality_checking,
+    bench_memory_bandwidth,
+);
+
+criterion_main!(benches);

@@ -1,0 +1,28 @@
+# Files/directories to exclude from ExaPsi/QuasiX PUBLIC repo
+# These are tracked in yyods/QuasiX (private) but NOT pushed to public
+#
+# Use ./push_to_public.sh to push filtered content to ExaPsi
+
+# Claude AI configuration (private)
+.claude/
+CLAUDE.md
+
+# Internal analysis and outputs (private)
+analysis/
+output/
+verification_outputs/
+backup/
+
+# Internal development docs (private) - public_docs/ is for public
+docs/
+
+# Development examples and scripts (private)
+examples/
+scripts/
+
+# Test suite (private - validation data may contain unpublished results)
+tests/
+
+# This script itself
+push_to_public.sh
+.gitignore.public
