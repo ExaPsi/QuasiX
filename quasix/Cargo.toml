@@ -16,7 +16,7 @@ crate-type = ["cdylib"]
 quasix_core = { path = "../quasix_core", features = ["python"] }
 
 # PyO3 for Python bindings
-pyo3 = { version = "0.26", features = ["extension-module", "abi3-py310"] }
+pyo3 = { version = "0.27", features = ["extension-module", "abi3-py310"] }
 
 # NumPy integration - requires ndarray 0.16
 numpy = "0.26"
