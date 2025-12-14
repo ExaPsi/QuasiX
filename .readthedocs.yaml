@@ -1,0 +1,26 @@
+# ReadTheDocs configuration file
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html
+
+version: 2
+
+# Build settings
+build:
+  os: ubuntu-22.04
+  tools:
+    python: "3.10"
+  # Note: We don't need Rust on RTD since we're not building the extension
+  # Documentation is built from source files only
+
+# Build documentation with Sphinx
+sphinx:
+  configuration: public_docs/source/conf.py
+
+# Install Python dependencies
+python:
+  install:
+    # Install docs dependencies only (skip building the Rust extension)
+    - requirements: public_docs/requirements-docs.txt
+
+# Formats to build (in addition to HTML)
+formats:
+  - pdf

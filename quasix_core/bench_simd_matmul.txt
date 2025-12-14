@@ -1,0 +1,559 @@
+   Compiling quasix_core v0.5.0 (/home/vyv/Working/QuasiX/quasix_core)
+warning: use of deprecated function `selfenergy::correlation_fix::compute_sigma_c_simple_approximation`: Use correlation module instead
+  --> src/qp/evgw.rs:33:22
+   |
+33 |     correlation_fix::compute_sigma_c_simple_approximation,
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated function `selfenergy::correlation_fix::compute_sigma_c_simple_approximation`: Use correlation module instead
+    --> src/qp/evgw.rs:1248:34
+     |
+1248 |             let sigma_c_simple = compute_sigma_c_simple_approximation(
+     |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated function `selfenergy::correlation_fix::compute_sigma_c_simple_approximation`: Use correlation module instead
+    --> src/qp/evgw.rs:1506:34
+     |
+1506 |             let sigma_c_simple = compute_sigma_c_simple_approximation(
+     |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated struct `selfenergy::correlation_fixed::CorrelationConfig`: Use correlation module instead
+   --> src/selfenergy/correlation.rs:217:13
+    |
+217 |             CorrelationConfig as FixedConfig,
+    |             ^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated struct `selfenergy::correlation_fixed::CorrelationSelfEnergyFixed`: Use correlation module instead
+   --> src/selfenergy/correlation.rs:218:13
+    |
+218 |             CorrelationSelfEnergyFixed,
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated struct `selfenergy::correlation_fixed::CorrelationConfig`: Use correlation module instead
+   --> src/selfenergy/correlation.rs:224:28
+    |
+224 |         let fixed_config = FixedConfig {
+    |                            ^^^^^^^^^^^
+
+warning: use of deprecated struct `selfenergy::correlation_fixed::CorrelationSelfEnergyFixed`: Use correlation module instead
+   --> src/selfenergy/correlation.rs:232:26
+    |
+232 |         let fixed_calc = CorrelationSelfEnergyFixed::new(
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated method `ndarray::impl_methods::<impl ndarray::ArrayBase<S, D>>::into_shape`: Use `.into_shape_with_order()` or `.to_shape()`
+   --> src/df/mod.rs:146:14
+    |
+146 |             .into_shape((nbasis * nbasis, naux))
+    |              ^^^^^^^^^^
+
+warning: use of deprecated method `ndarray::impl_methods::<impl ndarray::ArrayBase<S, D>>::into_shape`: Use `.into_shape_with_order()` or `.to_shape()`
+   --> src/df/mod.rs:171:14
+    |
+171 |             .into_shape((nbasis, nbasis, naux))
+    |              ^^^^^^^^^^
+
+warning: use of deprecated field `selfenergy::correlation_fixed::CorrelationConfig::eta`: Use correlation module instead
+   --> src/selfenergy/correlation.rs:225:13
+    |
+225 |             eta: self.config.eta,
+    |             ^^^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated field `selfenergy::correlation_fixed::CorrelationConfig::n_gl_points`: Use correlation module instead
+   --> src/selfenergy/correlation.rs:226:13
+    |
+226 |             n_gl_points: self.config.n_imag_freq,
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated field `selfenergy::correlation_fixed::CorrelationConfig::xi_max`: Use correlation module instead
+   --> src/selfenergy/correlation.rs:227:13
+    |
+227 |             xi_max: self.config.omega_max,
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated field `selfenergy::correlation_fixed::CorrelationConfig::parallel`: Use correlation module instead
+   --> src/selfenergy/correlation.rs:228:13
+    |
+228 |             parallel: true,
+    |             ^^^^^^^^^^^^^^
+
+warning: use of deprecated field `selfenergy::correlation_fixed::CorrelationConfig::verbose`: Use correlation module instead
+   --> src/selfenergy/correlation.rs:229:13
+    |
+229 |             verbose: self.config.verbose as u8,  // Pass through verbose level
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated associated function `selfenergy::correlation_fixed::CorrelationSelfEnergyFixed::new`: Use correlation module instead
+   --> src/selfenergy/correlation.rs:232:54
+    |
+232 |         let fixed_calc = CorrelationSelfEnergyFixed::new(
+    |                                                      ^^^
+
+warning: use of deprecated method `selfenergy::correlation_fixed::CorrelationSelfEnergyFixed::compute_sigma_c`: Use correlation module instead
+   --> src/selfenergy/correlation.rs:240:34
+    |
+240 |         let sigma_c = fixed_calc.compute_sigma_c(
+    |                                  ^^^^^^^^^^^^^^^
+
+warning: unused variable: `scale_simd`
+   --> src/freq/grid_optimized.rs:494:13
+    |
+494 |         let scale_simd = f64x4::splat(scale);
+    |             ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_scale_simd`
+    |
+    = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `two_simd`
+   --> src/freq/grid_optimized.rs:495:13
+    |
+495 |         let two_simd = f64x4::splat(2.0);
+    |             ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_two_simd`
+
+warning: unused variable: `weights_simd`
+   --> src/freq/grid_optimized.rs:509:17
+    |
+509 |             let weights_simd = f64x4::from(weight_vals);
+    |                 ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_weights_simd`
+
+warning: unused variable: `t`
+   --> src/freq/grid_optimized.rs:522:21
+    |
+522 |                 let t = node_vals[j];
+    |                     ^ help: if this is intentional, prefix it with an underscore: `_t`
+
+warning: unused variable: `gl_weights`
+   --> src/freq/imaginary_axis_grid.rs:288:5
+    |
+288 |     gl_weights: &Array1<f64>,
+    |     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_gl_weights`
+
+warning: unused variable: `omega_simd`
+   --> src/freq/jacobian_optimized.rs:133:13
+    |
+133 |         let omega_simd = f64x4::splat(omega_max);
+    |             ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_omega_simd`
+
+warning: unused variable: `cutoff_simd`
+   --> src/freq/jacobian_optimized.rs:135:13
+    |
+135 |         let cutoff_simd = f64x4::splat(self.cutoff_threshold);
+    |             ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_cutoff_simd`
+
+warning: unused variable: `max_jac_simd`
+   --> src/freq/jacobian_optimized.rs:136:13
+    |
+136 |         let max_jac_simd = f64x4::splat(self.max_jacobian * omega_max);
+    |             ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_max_jac_simd`
+
+warning: unused variable: `denom_arr`
+   --> src/freq/jacobian_optimized.rs:152:17
+    |
+152 |             let denom_arr: [f64; 4] = denom_simd.into();
+    |                 ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_denom_arr`
+
+warning: unused variable: `nvirt`
+   --> src/gw/g0w0.rs:454:9
+    |
+454 |     let nvirt = nmo - nocc;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_nvirt`
+
+warning: unused variable: `omega_weights`
+   --> src/gw/g0w0.rs:465:22
+    |
+465 |     let (omega_grid, omega_weights) = create_frequency_grid(config.nfreq)?;
+    |                      ^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_omega_weights`
+
+warning: unused variable: `cd_config`
+   --> src/gw/g0w0.rs:470:9
+    |
+470 |     let cd_config = ContourDeformationConfig {
+    |         ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_cd_config`
+
+warning: unused variable: `omega_weights`
+   --> src/gw/g0w0.rs:618:22
+    |
+618 |     let (omega_grid, omega_weights) = create_frequency_grid(config.nfreq)?;
+    |                      ^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_omega_weights`
+
+warning: unused variable: `df_ia`
+    --> src/qp/evgw.rs:1170:9
+     |
+1170 |         df_ia: &Array3<f64>,
+     |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_df_ia`
+
+warning: unused variable: `mo_occ`
+   --> src/selfenergy/correlation.rs:674:9
+    |
+674 |         mo_occ: &Array1<f64>,
+    |         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_mo_occ`
+
+warning: unused variable: `omega`
+   --> src/selfenergy/correlation_fix.rs:475:15
+    |
+475 |     for (ie, &omega) in eval_points.iter().enumerate() {
+    |               ^^^^^ help: if this is intentional, prefix it with an underscore: `_omega`
+
+warning: value assigned to `kernel_sum` is never read
+   --> src/selfenergy/correlation_fixed.rs:402:17
+    |
+402 |         let mut kernel_sum = Complex64::new(0.0, 0.0);
+    |                 ^^^^^^^^^^
+    |
+    = help: maybe it is overwritten before being read?
+    = note: `#[warn(unused_assignments)]` on by default
+
+warning: unused variable: `mo_occ`
+   --> src/selfenergy/correlation_fixed.rs:398:9
+    |
+398 |         mo_occ: &Array1<f64>,
+    |         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_mo_occ`
+
+warning: unused variable: `n`
+   --> src/selfenergy/energy_dependent.rs:229:13
+    |
+229 |         let n = self.omega_grid.len();
+    |             ^ help: if this is intentional, prefix it with an underscore: `_n`
+
+warning: unused variable: `df_tensors`
+   --> src/selfenergy/energy_dependent.rs:451:5
+    |
+451 |     df_tensors: &Array3<f64>,
+    |     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_df_tensors`
+
+warning: unused variable: `w_screened`
+   --> src/selfenergy/energy_dependent.rs:452:5
+    |
+452 |     w_screened: &Array3<Complex64>,
+    |     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_w_screened`
+
+warning: unused variable: `cd_config`
+   --> src/validation/comparison_harness.rs:275:13
+    |
+275 |         let cd_config = crate::selfenergy::ContourDeformationConfig {
+    |             ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_cd_config`
+
+warning: type `CachedGrid` is more private than the item `GridCache::cache`
+  --> src/freq/jacobian_optimized.rs:16:5
+   |
+16 |     pub cache: std::collections::HashMap<(usize, u64), CachedGrid>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ field `GridCache::cache` is reachable at visibility `pub`
+   |
+note: but type `CachedGrid` is only usable at visibility `pub(self)`
+  --> src/freq/jacobian_optimized.rs:20:1
+   |
+20 | struct CachedGrid {
+   | ^^^^^^^^^^^^^^^^^
+   = note: `#[warn(private_interfaces)]` on by default
+
+warning: field `jacobians` is never read
+  --> src/freq/jacobian_optimized.rs:23:5
+   |
+20 | struct CachedGrid {
+   |        ---------- field in this struct
+...
+23 |     jacobians: Array1<f64>,
+   |     ^^^^^^^^^
+   |
+   = note: `CachedGrid` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` on by default
+
+warning: field `n_ao` is never read
+  --> src/integrals/libcint_real.rs:52:5
+   |
+42 | pub struct LibcintRealEngine {
+   |            ----------------- field in this struct
+...
+52 |     n_ao: usize,
+   |     ^^^^
+
+warning: fields `w_matrices` and `omega_grid` are never read
+  --> src/qp/evgw.rs:48:5
+   |
+47 | struct WScreenedStorage {
+   |        ---------------- fields in this struct
+48 |     w_matrices: Vec<Array2<Complex64>>,
+   |     ^^^^^^^^^^
+49 |     omega_grid: Vec<f64>,
+   |     ^^^^^^^^^^
+   |
+   = note: `WScreenedStorage` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: method `expand_df_blocks_to_full` is never used
+    --> src/qp/evgw.rs:1758:8
+     |
+277  | impl EvGWDriver {
+     | --------------- method in this implementation
+...
+1758 |     fn expand_df_blocks_to_full(&self, _df_ia: &Array3<f64>) -> Result<Array3<f64>> {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `quasix_core` (lib) generated 43 warnings
+warning: unused import: `TransformConfig`
+  --> benches/df_performance_profile.rs:13:68
+   |
+13 | use quasix_core::df::mo_transform::{generate_mock_mo_coefficients, TransformConfig};
+   |                                                                    ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` on by default
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+  --> benches/df_performance_profile.rs:11:74
+   |
+11 | use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, black_box};
+   |                                                                          ^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+  --> benches/df_performance_profile.rs:79:25
+   |
+79 |                         black_box(a.view()),
+   |                         ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+  --> benches/df_performance_profile.rs:80:25
+   |
+80 |                         black_box(b.view()),
+   |                         ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+  --> benches/df_performance_profile.rs:81:25
+   |
+81 |                         black_box(c_simd.view_mut())
+   |                         ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+  --> benches/df_performance_profile.rs:93:29
+   |
+93 |                     let _ = black_box(a.dot(&b));
+   |                             ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+   --> benches/df_performance_profile.rs:121:25
+    |
+121 |                         black_box(j3c_flat.view()),
+    |                         ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+   --> benches/df_performance_profile.rs:122:25
+    |
+122 |                         black_box(c_occ.view()),
+    |                         ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+   --> benches/df_performance_profile.rs:123:25
+    |
+123 |                         black_box(c_vir.view())
+    |                         ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+   --> benches/df_performance_profile.rs:158:25
+    |
+158 |                         black_box(&j3c_ao),
+    |                         ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+   --> benches/df_performance_profile.rs:159:25
+    |
+159 |                         black_box(&c_occ),
+    |                         ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+   --> benches/df_performance_profile.rs:160:25
+    |
+160 |                         black_box(&c_vir),
+    |                         ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+   --> benches/df_performance_profile.rs:190:17
+    |
+190 |                 black_box(&j3c_ao),
+    |                 ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+   --> benches/df_performance_profile.rs:191:17
+    |
+191 |                 black_box(&c_occ),
+    |                 ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+   --> benches/df_performance_profile.rs:192:17
+    |
+192 |                 black_box(&c_vir),
+    |                 ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+   --> benches/df_performance_profile.rs:204:17
+    |
+204 |                 black_box(&j3c_ao),
+    |                 ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+   --> benches/df_performance_profile.rs:205:17
+    |
+205 |                 black_box(&c_occ),
+    |                 ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+   --> benches/df_performance_profile.rs:206:17
+    |
+206 |                 black_box(&c_vir)
+    |                 ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+   --> benches/df_performance_profile.rs:233:25
+    |
+233 |                         black_box(&j3c_ao),
+    |                         ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+   --> benches/df_performance_profile.rs:234:25
+    |
+234 |                         black_box(&c_occ),
+    |                         ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+   --> benches/df_performance_profile.rs:235:25
+    |
+235 |                         black_box(&c_vir),
+    |                         ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+   --> benches/df_performance_profile.rs:264:17
+    |
+264 |                 black_box(&j3c_ao),
+    |                 ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+   --> benches/df_performance_profile.rs:265:17
+    |
+265 |                 black_box(&c_occ),
+    |                 ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+   --> benches/df_performance_profile.rs:266:17
+    |
+266 |                 black_box(&c_vir),
+    |                 ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+   --> benches/df_performance_profile.rs:278:17
+    |
+278 |                 black_box(&j3c_ao),
+    |                 ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+   --> benches/df_performance_profile.rs:279:17
+    |
+279 |                 black_box(&c_occ),
+    |                 ^^^^^^^^^
+
+warning: use of deprecated function `criterion::black_box`: use `std::hint::black_box()` instead
+   --> benches/df_performance_profile.rs:280:17
+    |
+280 |                 black_box(&c_vir),
+    |                 ^^^^^^^^^
+
+warning: use of deprecated method `ndarray::impl_methods::<impl ndarray::ArrayBase<S, D>>::into_shape`: Use `.into_shape_with_order()` or `.to_shape()`
+   --> benches/df_performance_profile.rs:110:31
+    |
+110 |         let j3c_flat = j3c_ao.into_shape((mol.nao * mol.nao, mol.naux)).unwrap();
+    |                               ^^^^^^^^^^
+
+warning: `quasix_core` (bench "df_performance_profile") generated 28 warnings (run `cargo fix --bench "df_performance_profile"` to apply 1 suggestion)
+    Finished `bench` profile [optimized] target(s) in 50.66s
+     Running benches/df_performance_profile.rs (target/release/deps/df_performance_profile-3e930e4256d3b7e2)
+Gnuplot not found, using plotters backend
+SIMD Support: SimdSupport { sse2: true, avx: true, avx2: true, fma: true }
+Benchmarking simd_matmul/simd/32
+Benchmarking simd_matmul/simd/32: Warming up for 1.0000 s
+Benchmarking simd_matmul/simd/32: Collecting 100 samples in estimated 3.2832 s (40k iterations)
+Benchmarking simd_matmul/simd/32: Analyzing
+simd_matmul/simd/32     time:   [79.768 µs 79.851 µs 79.937 µs]
+                        change: [−0.1427% −0.0052% +0.1456%] (p = 0.94 > 0.05)
+                        No change in performance detected.
+Found 12 outliers among 100 measurements (12.00%)
+  5 (5.00%) low mild
+  6 (6.00%) high mild
+  1 (1.00%) high severe
+Benchmarking simd_matmul/ndarray_dot/32
+Benchmarking simd_matmul/ndarray_dot/32: Warming up for 1.0000 s
+Benchmarking simd_matmul/ndarray_dot/32: Collecting 100 samples in estimated 3.0023 s (1.7M iterations)
+Benchmarking simd_matmul/ndarray_dot/32: Analyzing
+simd_matmul/ndarray_dot/32
+                        time:   [1.7136 µs 1.7156 µs 1.7179 µs]
+                        change: [+0.8276% +1.2111% +1.6367%] (p = 0.00 < 0.05)
+                        Change within noise threshold.
+Found 3 outliers among 100 measurements (3.00%)
+  3 (3.00%) high severe
+Benchmarking simd_matmul/simd/64
+Benchmarking simd_matmul/simd/64: Warming up for 1.0000 s
+
+Warning: Unable to complete 100 samples in 3.0s. You may wish to increase target time to 3.2s, enable flat sampling, or reduce sample count to 60.
+Benchmarking simd_matmul/simd/64: Collecting 100 samples in estimated 3.1950 s (5050 iterations)
+Benchmarking simd_matmul/simd/64: Analyzing
+simd_matmul/simd/64     time:   [629.13 µs 629.75 µs 630.38 µs]
+                        change: [+2.8644% +2.9489% +3.0384%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 5 outliers among 100 measurements (5.00%)
+  2 (2.00%) low mild
+  1 (1.00%) high mild
+  2 (2.00%) high severe
+Benchmarking simd_matmul/ndarray_dot/64
+Benchmarking simd_matmul/ndarray_dot/64: Warming up for 1.0000 s
+Benchmarking simd_matmul/ndarray_dot/64: Collecting 100 samples in estimated 3.0088 s (298k iterations)
+Benchmarking simd_matmul/ndarray_dot/64: Analyzing
+simd_matmul/ndarray_dot/64
+                        time:   [10.085 µs 10.097 µs 10.112 µs]
+                        change: [+1.6831% +1.8569% +2.1287%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high severe
+Benchmarking simd_matmul/simd/128
+Benchmarking simd_matmul/simd/128: Warming up for 1.0000 s
+Benchmarking simd_matmul/simd/128: Collecting 100 samples in estimated 3.4647 s (700 iterations)
+Benchmarking simd_matmul/simd/128: Analyzing
+simd_matmul/simd/128    time:   [4.9155 ms 4.9201 ms 4.9252 ms]
+                        change: [+1.1769% +1.2826% +1.3917%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 6 outliers among 100 measurements (6.00%)
+  1 (1.00%) low mild
+  3 (3.00%) high mild
+  2 (2.00%) high severe
+Benchmarking simd_matmul/ndarray_dot/128
+Benchmarking simd_matmul/ndarray_dot/128: Warming up for 1.0000 s
+Benchmarking simd_matmul/ndarray_dot/128: Collecting 100 samples in estimated 3.0157 s (187k iterations)
+Benchmarking simd_matmul/ndarray_dot/128: Analyzing
+simd_matmul/ndarray_dot/128
+                        time:   [13.445 µs 13.724 µs 14.065 µs]
+                        change: [−3.6767% −1.1358% +1.5868%] (p = 0.43 > 0.05)
+                        No change in performance detected.
+Found 14 outliers among 100 measurements (14.00%)
+  4 (4.00%) high mild
+  10 (10.00%) high severe
+Benchmarking simd_matmul/simd/256
+Benchmarking simd_matmul/simd/256: Warming up for 1.0000 s
+
+Warning: Unable to complete 100 samples in 3.0s. You may wish to increase target time to 4.0s, or reduce sample count to 70.
+Benchmarking simd_matmul/simd/256: Collecting 100 samples in estimated 3.9975 s (100 iterations)
+Benchmarking simd_matmul/simd/256: Analyzing
+simd_matmul/simd/256    time:   [39.692 ms 39.716 ms 39.740 ms]
+                        change: [−6.4202% −5.3728% −4.3384%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 7 outliers among 100 measurements (7.00%)
+  3 (3.00%) low mild
+  4 (4.00%) high mild
+Benchmarking simd_matmul/ndarray_dot/256
+Benchmarking simd_matmul/ndarray_dot/256: Warming up for 1.0000 s
+Benchmarking simd_matmul/ndarray_dot/256: Collecting 100 samples in estimated 3.1143 s (25k iterations)
+Benchmarking simd_matmul/ndarray_dot/256: Analyzing
+simd_matmul/ndarray_dot/256
+                        time:   [107.50 µs 110.69 µs 114.39 µs]
+                        change: [−6.2039% −1.8991% +2.6360%] (p = 0.42 > 0.05)
+                        No change in performance detected.
+Found 5 outliers among 100 measurements (5.00%)
+  4 (4.00%) high mild
+  1 (1.00%) high severe
+

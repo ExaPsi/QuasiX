@@ -1,0 +1,28 @@
+# Configuration for actions/labeler
+
+rust:
+  - quasix_core/**/*
+  - quasix-cli/**/*
+  - "**/*.rs"
+
+python:
+  - quasix/**/*
+  - "**/*.py"
+
+ci:
+  - .github/**/*
+
+documentation:
+  - docs/**/*
+  - "**/*.md"
+
+tests:
+  - tests/**/*
+  - "**/test_*.py"
+  - "**/*_test.rs"
+
+dependencies:
+  - "**/Cargo.toml"
+  - "**/Cargo.lock"
+  - "**/pyproject.toml"
+  - "**/requirements*.txt"
