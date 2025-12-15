@@ -55,7 +55,7 @@ jobs:
           maturin build --release --strip
 
       - name: Upload wheel artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: wheel-${{ matrix.os }}-py${{ matrix.python }}
           path: quasix/target/wheels/*.whl
@@ -83,7 +83,7 @@ jobs:
           maturin sdist
 
       - name: Upload sdist artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: sdist
           path: quasix/target/wheels/*.tar.gz
