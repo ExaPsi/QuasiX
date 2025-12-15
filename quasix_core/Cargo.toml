@@ -26,7 +26,7 @@ python = ["pyo3", "numpy"]  # Enable Python bindings
 [dependencies]
 ndarray = { version = "0.16", features = ["rayon", "blas", "serde"] }
 ndarray-linalg = { version = "0.17", features = ["openblas-static"] }
-nalgebra = { version = "0.33", features = ["serde-serialize"] }
+nalgebra = { version = "0.34", features = ["serde-serialize"] }
 cblas = "0.4"  # For direct BLAS calls
 cblas-sys = "0.1"  # For raw BLAS FFI
 blas-src = { version = "0.10", features = ["openblas"] }
